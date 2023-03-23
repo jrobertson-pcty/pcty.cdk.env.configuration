@@ -14,8 +14,8 @@ import { TableViewer } from 'cdk-dynamo-table-viewer';
 
 // define deploy stacks
 interface PctyCdkEnvConfigurationStackProps extends cdk.StackProps {
-  stackName: 'blue' | 'green'
-  deploymentEnvironment: 'blue' | 'green'
+  stackName: 'blueConfig' | 'greenConfig'
+  deploymentEnvironment: 'blueConfig' | 'greenConfig'
 }
 
 export class PctyCdkEnvConfigurationStack extends cdk.Stack {
@@ -26,7 +26,7 @@ export class PctyCdkEnvConfigurationStack extends cdk.Stack {
     const configTable = new dynamodb.Table(this, "configTable", {
       partitionKey: { name: "key", type: dynamodb.AttributeType.STRING },
       removalPolicy: RemovalPolicy.RETAIN,
-      tableName: (props.stackName + "_configuration_table"),
+      tableName: (props.stackName + "_table"),
     });
 
     // create IAM role to allow lambdas to interact with dynamoDB table
@@ -35,7 +35,7 @@ export class PctyCdkEnvConfigurationStack extends cdk.Stack {
     });
     dynamo_lambda_role.attachInlinePolicy(
       new iam.Policy(this, "configuration_dynamo_lambda_policy", {
-        policyName: "configuration_dynamo_lambda_policy",
+        policyName: "_dynamo_lambda_policy",
         statements: [
           new iam.PolicyStatement({
             actions: ["logs:CreateLogStream","logs:PutLogEvents","logs:CreateLogGroup"],
@@ -98,7 +98,7 @@ export class PctyCdkEnvConfigurationStack extends cdk.Stack {
 
     // create api gateway to front the configuration table
     const api = new apigw.RestApi(this, "config_api", {
-      restApiName: (props.stackName + "configuration_api"),
+      restApiName: (props.stackName + "_api"),
       endpointTypes: [apigw.EndpointType.REGIONAL],
       deployOptions: {
         stageName: 'v1',
@@ -115,13 +115,13 @@ export class PctyCdkEnvConfigurationStack extends cdk.Stack {
       methodResponses: [{ statusCode: '200', responseModels: { "application/json": apigw.Model.EMPTY_MODEL}}]
     });
     const api_get_resource = api.root.addResource("getConfig");
-    api_get_resource.addMethod('POST', get_lambda_api_integration, {
+    api_get_resource.addMethod('GET', get_lambda_api_integration, {
       methodResponses: [{ statusCode: '200', responseModels: { "application/json": apigw.Model.EMPTY_MODEL}}]
     });
     
     // add a table viewer for the config data
     new TableViewer(this, 'configTableViewer', {
-      title: (props.stackName + " Configuration Data"),
+      title: (props.stackName + " Data"),
       table: configTable,
       sortBy: 'key'
     });

@@ -13,21 +13,20 @@ def lambda_handler(event, context):
     
     #get reference to the table
     table = dynamodb.Table(os.environ['configTableName'])
-    #table = dynamodb.Table('blue_configuration_table')
     
     #check if an item with same key already exists
-    response = table.get_item(Key={'key': data['key']})
+    response = table.get_item(Key={'key': data['key'].lower()})
     if 'Item' in response:
         return {
             'statusCode': 400,
-            'body': 'Item with key {} already exists'.format(data['key'])
+            'body': 'Item with key {} already exists'.format(data['key'].lower())
         }
     
     #insert into the table
     table.put_item(
         Item={
-            "key": data['key'],
-            "value": data['value']
+            "key": data['key'].lower(),
+            "value": data['value'].lower()
         }
     )
     

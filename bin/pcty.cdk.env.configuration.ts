@@ -4,14 +4,14 @@ import * as cdk from 'aws-cdk-lib';
 import { PctyCdkEnvConfigurationStack } from '../lib/pcty.cdk.env.configuration-stack';
 
 const app = new cdk.App();
-new PctyCdkEnvConfigurationStack(app, 'blue', {
+new PctyCdkEnvConfigurationStack(app, 'blueConfig', {
   env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
-  stackName: 'blue',
-  deploymentEnvironment: 'blue'
+  stackName: 'blueConfig',
+  deploymentEnvironment: 'blueConfig'
 });
 
-new PctyCdkEnvConfigurationStack(app, 'green', {
+new PctyCdkEnvConfigurationStack(app, 'greenConfig', {
   env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
-  stackName: 'green',
-  deploymentEnvironment: 'green'
+  stackName: 'greenConfig',
+  deploymentEnvironment: 'greenConfig'
 });

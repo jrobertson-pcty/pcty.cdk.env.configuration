@@ -10,37 +10,33 @@ def lambda_handler(event, context):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(os.environ['configTableName'])
     
-    response = table.get_item(Key={'key': data['key']})
+    response = table.get_item(Key={'key': data['key'].lower()})
     if 'Item' not in response:
         return {
             'statusCode': 400,
-            'body': 'Item with key {} does not exist, thus can not be updated'.format(data['key'])
+            'body': 'Item with key {} does not exist, thus can not be updated'.format(data['key'].lower())
         }
         
-    print(response['Item']['value'])
-        
-    if data['value'] == response['Item']['value']:
+    if data['value'].lower() == response['Item']['value'].lower():
         return {
             'statusCode': 201,
-            'body': 'The key {} is already set to this value'.format(data['key'])
+            'body': 'The key {} is already set to this value'.format(data['key'].lower())
         }
     
     table.update_item(
         Key={
-            'key': data['key']
+            'key': data['key'].lower()
         },
         UpdateExpression='SET #va = :value',
         ExpressionAttributeValues={
-            #':key': data['key'],
-            ':value': data['value']
+            ':value': data['value'].lower()
         },
         ExpressionAttributeNames={
-            #'#ke': 'key',
             '#va': 'value'
         }
     )
     
     return {
         'statusCode': 200,
-        'body': 'Configuration Value updated successfully to {}'.format(data['value'])
+        'body': 'Configuration Value updated successfully to {}'.format(data['value'].lower())
     }

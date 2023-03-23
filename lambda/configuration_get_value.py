@@ -10,14 +10,14 @@ def lambda_handler(event, context):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(os.environ['configTableName'])
     
-    response = table.get_item(Key={'key': data['key']})
+    response = table.get_item(Key={'key': data['key'].lower()})
     if 'Item' not in response:
         return {
             'statusCode': 400,
-            'body': 'Item with key {} does not exist'.format(data['key'])
+            'body': 'Item with key {} does not exist'.format(data['key'].lower())
         }
     
     return {
         'statusCode': 200,
-        'body': response['Item']['value']
+        'body': response['Item']['value'].lower()
     }
